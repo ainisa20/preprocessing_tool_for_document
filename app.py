@@ -5,6 +5,8 @@ import shutil
 import requests
 from werkzeug.utils import secure_filename
 import json
+import uuid
+import random
 
 app = Flask(__name__)
 
@@ -25,6 +27,7 @@ CRAWL_API_KEY = f"fc-{API_KEY}"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 os.makedirs(MARKDOWN_FOLDER, exist_ok=True)
+
 
 
 
@@ -65,24 +68,22 @@ def handle_pdf_upload():
     pdf_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     file.save(pdf_path)
 
-    # 清理并重建输出目录
-    output_dir = app.config['OUTPUT_FOLDER']
-    if os.path.exists(output_dir):
-        shutil.rmtree(output_dir)
-    os.makedirs(output_dir)
+    # 生成唯一文件夹名称（UUID）
+    unique_folder = str(uuid.uuid4())
+    output_dir = os.path.join(app.config['OUTPUT_FOLDER'], unique_folder)
+    os.makedirs(output_dir, exist_ok=True)
 
-    # 转换PDF
+    # 转换 PDF 并存入唯一文件夹
     output_html = "converted.html"
     success, error = convert_pdf_to_html(pdf_path, output_dir, output_html)
     if not success:
         return f"转换失败: {error}", 500
 
-    # 生成访问URL
-    html_url = url_for('static', filename=f'outputs/{output_html}', _external=True)
+    # 生成访问 URL
+    html_url = url_for('static', filename=f'outputs/{unique_folder}/{output_html}', _external=True)
     return render_template('index.html',
                            pdf_conversion_success=True,
                            html_url=html_url)
-
 
 
 def handle_crawl_request():
@@ -132,7 +133,12 @@ def create_headers(action):
 
 
 def build_request_data(request, action):
-    data = {'url': request.form['url']}
+    # data = {'url': request.form['url']}
+    data = {
+        'url': request.form['url'],
+        'onlyMainContent': True  # 写死 onlyMainContent=True，排除导航、页眉和页脚
+    }
+
     if action == 'scrape':
         data['formats'] = request.form.getlist('formats')
     elif action == 'map':
@@ -152,36 +158,45 @@ def get_endpoint(action):
 
 
 def save_markdown(markdown_content):
-    markdown_filename = "extracted_content.md"
+    """保存 Markdown 文件，并添加 4 位随机流水号"""
+    serial = random.randint(1000, 9999)
+    markdown_filename = f"extracted_content_{serial}.md"
     markdown_path = os.path.join(app.config['MARKDOWN_FOLDER'], markdown_filename)
+
     with open(markdown_path, 'w', encoding='utf-8') as f:
         f.write(markdown_content)
+
     return markdown_filename
 
 
 def save_html(raw_html_content):
-    html_filename = "extracted_content.html"
+    """保存 HTML 文件，并添加 4 位随机流水号"""
+    serial = random.randint(1000, 9999)
+    html_filename = f"extracted_content_{serial}.html"
     html_path = os.path.join(app.config['UPLOAD_FOLDER'], html_filename)
+
     with open(html_path, 'w', encoding='utf-8') as f:
         f.write(raw_html_content)
+
     return html_filename
 
 
 # ======== 文件下载 ========
-@app.route('/download/<filename>')
-def download(filename):
-    return send_from_directory(app.config['OUTPUT_FOLDER'], filename, as_attachment=True)
+@app.route('/download/<folder>/<filename>')
+def download(folder, filename):
+    """提供下载 PDF 转换后的 HTML 文件"""
+    return send_from_directory(os.path.join(app.config['OUTPUT_FOLDER'], folder), filename, as_attachment=True)
 
 
 @app.route('/download_markdown/<filename>')
 def download_markdown(filename):
+    """提供 Markdown 文件下载"""
     return send_from_directory(app.config['MARKDOWN_FOLDER'], filename, as_attachment=True)
-
 
 
 @app.route('/download_html/<filename>')
 def download_html(filename):
-    """提供HTML文件下载"""
+    """提供 HTML 文件下载"""
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
 
 
