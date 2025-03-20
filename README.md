@@ -6,16 +6,21 @@
 2、软件安装
 2.1 pdf2htmlEX下载和安装
 地址：https://github.com/pdf2htmlEX/pdf2htmlEX/releases
+
 版本：pdf2htmlEX-0.18.8.rc1-master-20200630-Ubuntu-bionic-x86_64.deb
 
 安装命令：
 sudo apt install ./pdf2htmlEX-0.18.8.rc1-master-20200630-Ubuntu-bionic-x86_64.deb
+
  sudo dpkg -i pdf2htmlEX-0.18.8.rc1-master-20200630-Ubuntu-bionic-x86_64.deb
+ 
   apt-get install -f
 
 2.2、firecrawl 下载和安装
 地址：https://github.com/mendableai/firecrawl/blob/main/CONTRIBUTING.md
+
 firecrawl在线体验地址：https://www.firecrawl.dev/
+
 jina在线体验地址：https://jina.ai/reader/
 
 
