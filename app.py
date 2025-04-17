@@ -19,7 +19,7 @@ app.config['OUTPUT_FOLDER'] = OUTPUT_FOLDER
 app.config['MARKDOWN_FOLDER'] = MARKDOWN_FOLDER
 
 # 爬虫配置
-FIRE_CRAWL_BASE = "http://domain.com:port/v1"
+FIRE_CRAWL_BASE = "http://your_domain.com:port/v1"
 API_KEY = "xxx"  # 替换为真实 API Key
 CRAWL_API_KEY = f"fc-{API_KEY}"
 
