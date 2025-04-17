@@ -48,24 +48,27 @@ os.makedirs(MARKDOWN_FOLDER, exist_ok=True)
 ## 方式2:docker 安装的pdf2htmlEX（推荐）
 def convert_pdf_to_html(input_pdf, output_dir, output_html):
     try:
-        # 获取宿主机当前工作目录
-        host_cwd = os.getcwd()
-        # 构造容器内路径
+        host_cwd = os.getcwd()  # 宿主机当前目录
+
+        # 容器内路径映射
         container_input = os.path.join('/pdf2html', input_pdf)
         container_output_dir = os.path.join('/pdf2html', output_dir)
 
-        # 构建 Docker 命令
         cmd = [
             'docker', 'run', '--rm',
-            '-v', f'{host_cwd}:/pdf2html',  # 挂载宿主机目录到容器
+            '-v', f'{host_cwd}:/pdf2html',
             'bwits/pdf2htmlex',
             'pdf2htmlEX',
+            '--embed-image', '1',  # 明确嵌入图片
+            '--process-nontext', '1',  # 处理非文本内容
+            '--bg-format', 'png',  # 背景格式
+            '--embed', 'cfijo',  # 综合嵌入选项
             '--dest-dir', container_output_dir,
             container_input,
-            output_html  # 指定输出文件名
+            output_html
         ]
 
-        # 执行命令
+
         subprocess.run(
             cmd,
             check=True,
