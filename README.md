@@ -13,16 +13,20 @@
 版本：pdf2htmlEX-0.18.8.rc1-master-20200630-Ubuntu-bionic-x86_64.deb
 
 安装命令：
-
+-- 方式1:本地安装，系统ubuntu20.04
 sudo apt install ./pdf2htmlEX-0.18.8.rc1-master-20200630-Ubuntu-bionic-x86_64.deb
 
  sudo dpkg -i pdf2htmlEX-0.18.8.rc1-master-20200630-Ubuntu-bionic-x86_64.deb
  
   apt-get install -f
 
+-- 方式2:docker 安装
+docker pull bwits/pdf2htmlex
+
 2.2、firecrawl 下载和安装
 
 地址：https://github.com/mendableai/firecrawl/blob/main/CONTRIBUTING.md
+同样推荐用docker安装
 
 firecrawl在线体验地址：https://www.firecrawl.dev/
 
