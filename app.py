@@ -32,10 +32,42 @@ os.makedirs(MARKDOWN_FOLDER, exist_ok=True)
 
 
 # ======== 工具函数 ========
+## 方式1:安装包安装的pdf2htmlEX
+# def convert_pdf_to_html(input_pdf, output_dir, output_html):
+#     try:
+#         subprocess.run(
+#             ["pdf2htmlEX", "--embed", "cfijo", "--dest-dir", output_dir, input_pdf, output_html],
+#             check=True,
+#             stdout=subprocess.PIPE,
+#             stderr=subprocess.PIPE
+#         )
+#         return True, None
+#     except subprocess.CalledProcessError as e:
+#         return False, e.stderr.decode()
+
+## 方式2:docker 安装的pdf2htmlEX（推荐）
 def convert_pdf_to_html(input_pdf, output_dir, output_html):
     try:
+        # 获取宿主机当前工作目录
+        host_cwd = os.getcwd()
+        # 构造容器内路径
+        container_input = os.path.join('/pdf2html', input_pdf)
+        container_output_dir = os.path.join('/pdf2html', output_dir)
+
+        # 构建 Docker 命令
+        cmd = [
+            'docker', 'run', '--rm',
+            '-v', f'{host_cwd}:/pdf2html',  # 挂载宿主机目录到容器
+            'bwits/pdf2htmlex',
+            'pdf2htmlEX',
+            '--dest-dir', container_output_dir,
+            container_input,
+            output_html  # 指定输出文件名
+        ]
+
+        # 执行命令
         subprocess.run(
-            ["pdf2htmlEX", "--embed", "cfijo", "--dest-dir", output_dir, input_pdf, output_html],
+            cmd,
             check=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
